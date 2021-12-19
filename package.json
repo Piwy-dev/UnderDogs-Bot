@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "discord-buttons": "^4.0.0",
+    "@discordjs/voice": "^0.7.5",
     "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
     "fs": "^0.0.1-security",

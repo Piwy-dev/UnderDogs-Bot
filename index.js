@@ -14,6 +14,8 @@ const mongo = require('./mongo')
 // Liste des features
 const rules = require('./features/rules')
 const ticket = require('./features/ticket')
+const createVoiceChannel = require('./features/createVoiceChannel')
+const logs = require('./features/logs')
 
 // Laisse le bot en ligne
 var http = require('http');  
@@ -54,9 +56,18 @@ client.on('ready', async () => {
     // Execute les features
     rules(client)
     ticket(client)
-    //rr(client)
+    createVoiceChannel(client)
+    logs(client)
 
     client.user.setPresence({ activities: [{ name: 'in development' }] });
 })
+
+client.on('guildBanAdd', async ban => {
+    console.log("utilisateur banni")
+});
+
+client.on('guildBanRemove', async ban => {
+    console.log("utilisateur débanni")
+});
 
 client.login(token)
