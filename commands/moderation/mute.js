@@ -18,8 +18,14 @@ module.exports = {
 
         const target = message.mentions.members.first() || guild.members.cache.get(args[0]);
 
+        // Récupère la raison du mute
         args.shift();
-        const reason = args.join(" ");
+        let reason = args.join(" ");
+
+        // Change la raison en non spécifié si elel n'est pas remplie
+        if(reason === "" || " " || undefined){
+            reason = "non spécifiée"
+        }
 
         if (!target) {
             message.reply("Je n'ai pas pu trouver ce membre!");
@@ -50,12 +56,22 @@ module.exports = {
                 }, {
                     upsert: true
                 })
+            } catch(error) {
+                console.log(error)
             } finally {
                 mongoose.connection.close()
             }
         })
 
-        message.channel.send(`${target} a été mute! Raison: ${reason}`)
+        const muteEmbed = new MessageEmbed()
+            .setColor('#575757')
+            .setTitle('Un membre a été mute !')
+            .setDescription(`${target} a été mute par ${message.author} !`)
+            .addField('Raison', reason)
+
+        message.channel.send({
+            embeds: [muteEmbed]
+        })
 
         //#region logs du serveur
         // Récupère le channel des logs

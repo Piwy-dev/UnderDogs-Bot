@@ -33,7 +33,7 @@ module.exports = {
             try {
                 // Trouve la liste des membres mutes
                 const result = await muteSchema.findOne({ _id: guild.id })
-                if(!result) return message.reply("Il n'y a pas de membres mute dans le serveur.")
+                if (!result) return message.reply("Il n'y a pas de membres mute dans le serveur.")
 
                 // Trouve le membre cyble dans la liste
                 const user = result.Users.findIndex((prop) => prop === target.id)
@@ -47,16 +47,23 @@ module.exports = {
             }
         })
 
-        message.reply(`${target} a été unmute !`)
+        const unmuteEmbed = new MessageEmbed()
+            .setColor('#575757')
+            .setTitle('Un membre a été unmute !')
+            .setDescription(`${target} a été unmute par ${message.author}.`)
 
-         //#region logs du serveur
+        message.channel.send({
+            embeds: [unmuteEmbed]
+        })
+
+        //#region logs du serveur
         // Récupère le channel des logs
         const logChannel = guild.channels.cache.get('922053058442178620')
         if (!logChannel) return console.log("Le channel des logs n'existe pas !")
 
         // La date du message
         const date = new Date(message.createdTimestamp)
-        
+
         const deleteEmbed = new MessageEmbed()
             .setTitle("Un utilisateur a été unmute !")
             .setColor('#00ff2f')

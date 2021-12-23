@@ -25,7 +25,7 @@ module.exports = {
         }
 
         arguments.shift();
-        const reason = arguments.join(" ");
+        let reason = arguments.join(" ");
 
         if (reason === " " || "") {
             reason = "non spécifiée"
