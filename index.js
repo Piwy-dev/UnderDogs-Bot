@@ -1,5 +1,8 @@
-const Discord = require('discord.js')
-const { Intents } = require('discord.js')
+const { Client, Intents, Permissions, Collection } = require('discord.js')
+
+const { REST } = require("@discordjs/rest")
+const { Routes } = require("discord-api-types/v9")
+
 const path = require('path')
 const fs = require('fs')
 
@@ -16,10 +19,9 @@ const snekfetch = require('snekfetch');
 
 const Twit = require('twit')
 
-
-
-const client = new Discord.Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS] },
-    { partials: ["MESSAGE", "CHANNEL", "REACTION", "USER", "GUILD_MEMBER"] });
+const client = new Client({
+    intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_VOICE_STATES", "GUILD_MEMBERS", "GUILD_INVITES"]
+})
 
 const mongo = require('./mongo')
 
@@ -38,15 +40,27 @@ const ticket = require('./features/ticket')
 const createVoiceChannel = require('./features/createVoiceChannel')
 const logs = require('./features/logs')
 const welcome = require('./features/welcome')
+const censor = require('./features/censor')
+const antiSpam = require('./features/anti-spam')
 
 // Laisse le bot en ligne
 var http = require('http');
-http.createServer(function (req, res) {
+http.createServer(function(req, res) {
     res.write("I'm alive");
     res.end();
 }).listen(8080);
 
-client.on('ready', async () => {
+// Fichier pour les commandes
+const commandFiles = fs.readdirSync('./slashcommands').filter(file => file.endsWith('.js'));
+const commands = [];
+client.commands = new Collection();
+for (const file of commandFiles) {
+    const command = require(`./slashcommands/${file}`)
+    commands.push(command.data.toJSON())
+    client.commands.set(command.data.name, command)
+}
+
+client.on('ready', async() => {
     console.log(`Currently in ${client.guilds.cache.size} servers`)
 
     // Charge les commands
@@ -66,6 +80,23 @@ client.on('ready', async () => {
     }
     readCommands('commands')
 
+    // Charge les commandes slash
+    const clientID = client.user.id;
+    const rest = new REST({
+        version: '9'
+    }).setToken(config.token);
+
+    (async() => {
+        try {
+            await rest.put(Routes.applicationCommands(clientID), {
+                body: commands
+            })
+            console.log("Les commandes ont été chargées généralement correctement.")
+        } catch (err) {
+            if (err) console.error(err)
+        }
+    })()
+
     // Connecte à la base de données
     await mongo().then(mongoose => {
         try {
@@ -81,131 +112,35 @@ client.on('ready', async () => {
     createVoiceChannel(client)
     logs(client)
     welcome(client)
+        //censor(client)
+        //antiSpam(client)
 
-    // Charge les tweets
-    var T = new Twit({
-        consumer_key: config.twitter_consumer_key,
-        consumer_secret: config.twitter_consumer_secret,
-        access_token: config.twitter_access_token,
-        access_token_secret: config.twitter_access_token_secret,
-        timeout_ms: 60 * 1000,
-        strictSSL: true
-    })
+    // Censure des invitations
+    client.guilds.cache
+        .filter((g) => g.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+        .forEach((g) => g.invites.fetch({ cache: true }));
 
-    var stream = T.stream('statuses/filter', {
-        follow: [config.twitter_user_id],
-    })
+    client.user.setActivity(`la version 0.0.4`, { type: "WATCHING" })
+})
 
-    stream.on('tweet', function (tweet) {
-        console.log('Nouveau tweet.')
-        var url = "https://twitter.com/" + tweet.user.screen_name + "/status/" + tweet.id_str;
+// Lance les commandes slash
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return
 
-        try {
-            const tweetChannel = client.channels.cache.get('922246791829798953')
-            if (!tweetChannel) return console.log("Le channel de tweet n'existe pas !")
+    const command = client.commands.get(interaction.commandName)
 
-            tweetChannel.send(url).catch(err => {
-                console.log(err)
-            })
-        } catch (err) {
-            console.log(err)
-        }
-    })
+    if (!command) return
 
-    // Charge Twitch
-    /* const streamer = 'ahrityr_';
+    try {
+        await command.execute(interaction, client)
+    } catch (err) {
+        if (err) console.error(err)
 
-    const api = `https://api.twitch.tv/kraken/streams/${streamer}?client_id=${config.TWITCH_CLIENT_id}`;
-
-    snekfetch.get(api).then(r => {
-        if (r.body.stream === null) {
-            setInterval(() => {
-                snekfetch.get(api).then(console.log(r.body))
-            }, 30000); // Set to 30 seconds, less than this causes 'node socket hang up'
-        } else {
-            const embed = new Discord.RichEmbed()
-                .setAuthor(
-                    `${r.body.stream.channel.display_name} is live on Twitch`,
-                    `${r.body.stream.channel.logo}`,
-                    `${r.body.stream.channel.url}`
-                )
-                .setThumbnail(`http://static-cdn.jtvnw.net/ttv-boxart/${encodeURI(r.body.stream.channel.game)}-500x500.jpg`)
-                .addField('Stream Title', `${r.body.stream.channel.status}`, true)
-                .addField('Playing', `${r.body.stream.channel.game}`, true)
-                .addField('Followers', `${r.body.stream.channel.followers}`, true)
-                .addField('Views', `${r.body.stream.channel.views}`, true)
-                .setImage(r.body.stream.preview.large)
-
-            return client.channels.get('922148004289450024').send({ 
-                embeds: [embed] 
-            });
-        }
-    }); */
-    
-    app.get("/", (req, res) => {
-      res.send("Hello World!");
-    });
-    
-    const verifyTwitchSignature = (req, res, buf, encoding) => {
-      const messageId = req.header("Twitch-Eventsub-Message-Id");
-      const timestamp = req.header("Twitch-Eventsub-Message-Timestamp");
-      const messageSignature = req.header("Twitch-Eventsub-Message-Signature");
-      const time = Math.floor(new Date().getTime() / 1000);
-      console.log(`Message ${messageId} Signature: `, messageSignature);
-    
-      if (Math.abs(time - timestamp) > 600) {
-        // needs to be < 10 minutes
-        console.log(
-          `Verification Failed: timestamp > 10 minutes. Message Id: ${messageId}.`
-        );
-        throw new Error("Ignore this request.");
-      }
-    
-      if (!twitchSigningSecret) {
-        console.log(`Twitch signing secret is empty.`);
-        throw new Error("Twitch signing secret is empty.");
-      }
-    
-      const computedSignature =
-        "sha256=" +
-        crypto
-          .createHmac("sha256", twitchSigningSecret)
-          .update(messageId + timestamp + buf)
-          .digest("hex");
-      console.log(`Message ${messageId} Computed Signature: `, computedSignature);
-    
-      if (messageSignature !== computedSignature) {
-        throw new Error("Invalid signature.");
-      } else {
-        console.log("Verification successful");
-      }
-    };
-    
-    app.use(express.json({ verify: verifyTwitchSignature }));
-    
-    app.post("/webhooks/callback", async (req, res) => {
-      const messageType = req.header("Twitch-Eventsub-Message-Type");
-      if (messageType === "webhook_callback_verification") {
-        console.log("Verifying Webhook");
-        return res.status(200).send(req.body.challenge);
-      }
-    
-      const { type } = req.body.subscription;
-      const { event } = req.body;
-    
-      console.log(
-        `Receiving ${type} request for ${event.broadcaster_user_name}: `,
-        event
-      );
-    
-      res.status(200).end();
-    });
-    
-    const listener = app.listen(port, () => {
-      console.log("Your app is listening on port " + listener.address().port);
-    });
-    
-      
+        await interaction.reply({
+            content: "Une erreur s'est produite pendant l'exécution. Merci de réessayer ou de rapporter un bug.",
+            ephemeral: true
+        })
+    }
 })
 
 client.login(config.token)

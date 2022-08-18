@@ -12,8 +12,7 @@ module.exports = (client) => {
 
             const ticketChannel = await guild.channels.create(`ticket-${member.displayName}`, {
                 type: 'GUILD_TEXT',
-                permissionOverwrites: [
-                    {
+                permissionOverwrites: [{
                         id: guild.id,
                         deny: [Permissions.FLAGS.VIEW_CHANNEL],
                     },
@@ -28,16 +27,16 @@ module.exports = (client) => {
                 .setColor('#42f569')
                 .setTitle('Nouveau ticket !')
                 .setDescription(`${member} Merci d'expliquer ta question, plainte, proposition, ...`)
-                .setFooter("Tu recevras un message privé quand ce salon sera fermé.")
+                .setFooter({ text: "Tu recevras un message privé quand ce salon sera fermé." })
 
 
             const closeButton = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
-                        .setCustomId('closeTicket')
-                        .setLabel("Fermer")
-                        .setStyle('DANGER')
-                        .setEmoji('🔒')
+                    .setCustomId('closeTicket')
+                    .setLabel("Fermer")
+                    .setStyle('DANGER')
+                    .setEmoji('🔒')
                 )
 
             await ticketChannel.send({
@@ -47,7 +46,7 @@ module.exports = (client) => {
             })
 
             // Enregistre l'id du channel et du membre dans la bdd
-            await mongo().then(async (mongoose) => {
+            await mongo().then(async(mongoose) => {
                 try {
                     await ticketSchema.findOneAndUpdate({
                         _id: ticketChannel.id
@@ -91,12 +90,19 @@ module.exports = (client) => {
                     const date = new Date(message.createdTimestamp)
 
                     const closeTicketEmbed = new MessageEmbed()
-                    .setColor('#4287f5')
-                    .setTitle('Ticket fermé !')
-                    .setDescription(`Ton ticket dans le serveur ${guild.name} a été fermé.`)
-                    .addField("Ouvert par:", `${target}`)
-                    .addField("Fermé par:", `${member}`)
-                    .addField("Date de création", `${date.toLocaleString()}`)
+                        .setColor('#4287f5')
+                        .setTitle('Ticket fermé !')
+                        .setDescription(`Ton ticket dans le serveur ${guild.name} a été fermé.`)
+                        .addFields({
+                            name: "Ouvert par:",
+                            value: `${target}`
+                        }, {
+                            name: "Fermé par:",
+                            value: `${member}`
+                        }, {
+                            name: "Date de création",
+                            value: `${date.toLocaleString()}`
+                        })
 
                     target.send({
                         embeds: [closeTicketEmbed]
@@ -107,17 +113,16 @@ module.exports = (client) => {
             })
 
             // Supprime le salon et le document de la bdd
-            setTimeout(() => interaction.channel.delete(), 5000)    
-            await mongo().then(async (mongoose) => {
+            setTimeout(() => interaction.channel.delete(), 5000)
+            await mongo().then(async(mongoose) => {
                 try {
                     await ticketSchema.findOneAndDelete({
                         _id: channel.id
                     })
-                } finally{
+                } finally {
                     mongoose.connection.close()
                 }
             })
-        }
-        else return;
+        } else return;
     });
 }

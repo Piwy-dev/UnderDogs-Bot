@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-const {mongoPath} = require('./keys.json')
+const { mongoPath } = require('./keys.json')
 
-module.exports = async () => {
+module.exports = async() => {
     await mongoose.connect(mongoPath, {
         useNewUrlParser: true,
         useUnifiedTopology: true,

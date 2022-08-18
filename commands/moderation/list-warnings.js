@@ -1,4 +1,5 @@
 const { MessageEmbed, Permissions } = require('discord.js');
+
 const warnShema = require('../../models/warn-schema')
 const mongo = require('../../mongo');
 
@@ -9,7 +10,7 @@ module.exports = {
     minArgs: 1,
     expectedArgs: '<Membre dont on veut voir les avertissements>',
 
-    callback: async (message, args) => {
+    callback: async(message, args) => {
         const { guild, member, author } = message
 
         // Vérifie que le membre aie la permission
@@ -25,17 +26,18 @@ module.exports = {
             return;
         }
 
-        await mongo().then(async (mongoose) => {
+        await mongo().then(async(mongoose) => {
             try {
                 result = await warnShema.findOne({
                     _id: guild.id,
                     userId: target.id
                 })
-            }
-            finally {
+            } finally {
                 mongoose.connection.close()
             }
         })
+
+        if (!result) return message.reply("Ce membre n'a pas d'avertissements.")
 
         const warnEmbed = new MessageEmbed()
             .setTitle(`Récapitulatif des avertissemnts`)
