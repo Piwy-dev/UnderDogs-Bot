@@ -9,18 +9,13 @@ module.exports = {
             .setName("id")
             .setDescription("L'id de l'utilisateur à débannir")
             .setRequired(true)
-        ),
+        )
+        .setDefaultMemberPermissions(Permissions.FLAGS.BAN_MEMBERS),
 
     async execute(interaction, client) {
         const { member, guild, options } = interaction
 
         await interaction.deferReply();
-
-        // Vérifie que le membre aie la permission
-        if (!member.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) return interaction.editReply({
-            content: 'Pour effectuer cette action, tu dois avoir la permission de bannir des membres.',
-            ephemeral: true
-        })
 
         // Vérifie que l'identifiant sois un nombre valide
         const id = parseInt(interaction.options.getString("id"))

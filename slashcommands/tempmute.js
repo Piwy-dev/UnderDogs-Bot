@@ -22,18 +22,13 @@ module.exports = {
         .addStringOption((option) => option
             .setName("raison")
             .setDescription("La raison du tempmute")
-        ),
+        )
+        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
 
         await interaction.deferReply({ ephemeral: true }, )
-
-        // Vérifie que le membre aie la permission
-        if (!member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return interaction.editReply({
-            content: 'Pour effectuer cette action, tu dois avoir la permission de gérer les messages.',
-            ephemeral: true
-        })
 
         // Récupère le membre à mute
         const target = guild.members.cache.get(options.getUser("membre").id)

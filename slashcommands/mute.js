@@ -19,7 +19,8 @@ module.exports = {
         .addStringOption((option) => option
             .setName("raison")
             .setDescription("La raison du mute")
-        ),
+        )
+        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction

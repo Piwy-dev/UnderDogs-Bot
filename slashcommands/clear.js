@@ -9,15 +9,13 @@ module.exports = {
             .setName("nombre")
             .setDescription("Le nombre de messages à supprimer.")
             .setRequired(true)
-        ),
+        )
+        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
 
-        await interaction.deferReply({ ephmeral: true });
-
-        // Vérifie que le membre aie la permission
-        if (!member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return message.reply("Tu n'as pas la permession d'effectuer cette action.")
+        await interaction.deferReply({ ephemeral: true });
 
         const claerAmount = options.getNumber("nombre");
 

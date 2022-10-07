@@ -13,16 +13,11 @@ module.exports = {
         .addStringOption((option) => option
             .setName("raison")
             .setDescription("La raison de l'exclusion")
-        ),
+        )
+        .setDefaultMemberPermissions(Permissions.FLAGS.KICK_MEMBERS),
 
     async execute(interaction, client) {
         const { member, guild, options } = interaction
-
-        // Vérifie que le membre aie la permission
-        if (!member.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) return message.reply({
-            content: 'Pour effectuer cette action, tu dois avoir la permission de ban des membres.',
-            ephemeral: true
-        })
 
         // Récupère le membre à exclure
         const target = guild.members.cache.get(options.getUser("membre").id)

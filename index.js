@@ -9,34 +9,16 @@ const fs = require('fs')
 // Données sensibles du bot
 const config = require('./keys.json');
 
-const express = require("express");
-const crypto = require("crypto");
-const app = express();
-const port = process.env.PORT || 3000;
-const twitchSigningSecret = config.TWITCH_SIGNING_secret;
-
-const snekfetch = require('snekfetch');
-
-const Twit = require('twit')
-
 const client = new Client({
     intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_VOICE_STATES", "GUILD_MEMBERS", "GUILD_INVITES"]
 })
 
 const mongo = require('./mongo')
 
-/*const { ApiClient } = require("twitch");
-const { ClientCredentialsAuthProvider } = require("twitch-auth");
-const authProvider = new ClientCredentialsAuthProvider(
-    config.TWITCH_CLIENT_id,
-    config.TWITCH_CLIENT_secret
-);
-const twitch = new ApiClient({ authProvider });
-console.log(twitch) */
-
 // Liste des features
 const rules = require('./features/rules')
 const ticket = require('./features/ticket')
+const recrutement = require('./features/recrutement')
 const createVoiceChannel = require('./features/createVoiceChannel')
 const logs = require('./features/logs')
 const welcome = require('./features/welcome')
@@ -62,23 +44,6 @@ for (const file of commandFiles) {
 
 client.on('ready', async() => {
     console.log(`Currently in ${client.guilds.cache.size} servers`)
-
-    // Charge les commands
-    const baseFile = 'command-base.js'
-    const commandBase = require(`./commands/${baseFile}`)
-    const readCommands = dir => {
-        const files = fs.readdirSync(path.join(__dirname, dir))
-        for (const file of files) {
-            const stat = fs.lstatSync(path.join(__dirname, dir, file))
-            if (stat.isDirectory()) {
-                readCommands(path.join(dir, file))
-            } else if (file !== baseFile) {
-                const option = require(path.join(__dirname, dir, file))
-                commandBase(client, option)
-            }
-        }
-    }
-    readCommands('commands')
 
     // Charge les commandes slash
     const clientID = client.user.id;
@@ -109,7 +74,8 @@ client.on('ready', async() => {
     // Execute les features
     rules(client)
     ticket(client)
-    createVoiceChannel(client)
+    recrutement(client)
+        // createVoiceChannel(client)
     logs(client)
     welcome(client)
         //censor(client)

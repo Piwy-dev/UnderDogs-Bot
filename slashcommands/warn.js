@@ -19,17 +19,13 @@ module.exports = {
             .setName("raison")
             .setDescription("La raison de l'avertissement.")
             .setRequired(true)
-        ),
+        )
+        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
 
         await interaction.deferReply({ ephemeral: true })
-
-        // Vérifie que le membre aie la permission
-        if (!member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return interaction.reply({
-            content: 'Pour effectuer cette action, tu dois avoir la permission de gérer les messages.',
-        })
 
         // Récupère le membre à avertire
         const target = guild.members.cache.get(options.getUser("membre").id)
