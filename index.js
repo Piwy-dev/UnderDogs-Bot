@@ -1,17 +1,16 @@
-const { Client, Intents, Permissions, Collection } = require('discord.js')
+const { Client, GatewayIntentBits, Collection, PermissionsBitField } = require('discord.js')
 
 const { REST } = require("@discordjs/rest")
-const { Routes } = require("discord-api-types/v9")
+const { Routes } = require("discord-api-types/v10")
 
-const path = require('path')
 const fs = require('fs')
-
-// Données sensibles du bot
-const config = require('./keys.json');
+require('dotenv').config()
 
 const client = new Client({
-    intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_VOICE_STATES", "GUILD_MEMBERS", "GUILD_INVITES"]
-})
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.Guilds
+    ]
+});
 
 const mongo = require('./mongo')
 
@@ -49,7 +48,7 @@ client.on('ready', async() => {
     const clientID = client.user.id;
     const rest = new REST({
         version: '9'
-    }).setToken(config.token);
+    }).setToken(process.env.TOKEN);
 
     (async() => {
         try {
@@ -82,9 +81,9 @@ client.on('ready', async() => {
         //antiSpam(client)
 
     // Censure des invitations
-    client.guilds.cache
-        .filter((g) => g.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
-        .forEach((g) => g.invites.fetch({ cache: true }));
+    /*client.guilds.cache
+        .filter((g) => g.me.permissions.has(PermissionsBitField.Flags.ManageGuild))
+        .forEach((g) => g.invites.fetch({ cache: true })); */
 
     client.user.setActivity(`la version 0.0.4`, { type: "WATCHING" })
 })
@@ -109,4 +108,4 @@ client.on('interactionCreate', async interaction => {
     }
 })
 
-client.login(config.token)
+client.login(process.env.TOKEN)

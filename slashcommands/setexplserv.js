@@ -1,17 +1,16 @@
-const { SlashCommandBuilder } = require('@discordjs/builders')
-const { MessageEmbed, Permissions } = require('discord.js')
+const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js')
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("setexplserv")
         .setDescription("Ajoute le message des explications des salons.")
-        .setDefaultMemberPermissions(Permissions.FLAGS.ADMINISTRATOR),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
 
     async execute(interaction, client) {
         const { guild, channel } = interaction
 
         // Création de l'embed
-        const explEmbed = new MessageEmbed()
+        const explEmbed = new EmbedBuilder()
             .setColor('#4babfa')
             .setTitle('Rooster Brawl Stars')
             .setDescription('**Manager:** <@905594051787624539> \n**Analist:** <@692355433293283358> \n**Coach:** <@523744994880782336> \n**Players:** \n<@973170356275798087> \n<@974603958473596948> \n<@814346587526397962>')

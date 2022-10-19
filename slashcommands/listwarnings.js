@@ -1,5 +1,4 @@
-const { MessageEmbed, Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js')
 
 const mongo = require('../mongo.js')
 const warnSchema = require('../models/warn-schema')
@@ -15,7 +14,7 @@ module.exports = {
             .setDescription("Le membre dont on veut voir les avrtissements.")
             .setRequired(true)
         )
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
@@ -38,7 +37,7 @@ module.exports = {
 
         if (!result) return interaction.editReply({ content: "Ce membre n'a pas d'avertissements.", ephemeral: true })
 
-        const warnEmbed = new MessageEmbed()
+        const warnEmbed = new EmbedBuilder()
             .setTitle(`Récapitulatif des avertissemnts`)
 
         for (let counter = 0; counter < result.reasons.length; ++counter) {

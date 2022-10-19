@@ -1,5 +1,4 @@
-const { MessageEmbed, Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js')
 
 const mongo = require('../mongo.js')
 const warnSchema = require('../models/warn-schema')
@@ -24,7 +23,7 @@ module.exports = {
             .setName("number")
             .setDescription("Le nombre d'avertissements à retirer.")
         )
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction

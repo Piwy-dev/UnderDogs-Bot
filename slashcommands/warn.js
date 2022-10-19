@@ -1,5 +1,4 @@
-const { MessageEmbed, Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js')
 
 const mongo = require('../mongo.js')
 const warnSchema = require('../models/warn-schema')
@@ -20,7 +19,7 @@ module.exports = {
             .setDescription("La raison de l'avertissement.")
             .setRequired(true)
         )
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
@@ -59,7 +58,7 @@ module.exports = {
         })
 
         // Création de l'embed
-        const warnEmbed = new MessageEmbed()
+        const warnEmbed = new EmbedBuilder()
             .setTitle('Nouvel avertissemnt !')
             .setDescription(`${target} a reçu un nouvel avertissement par ${member}. \n Il a maintenant ${result.reasons.length} avertissement(s)`)
             .addFields({ name: 'Raison', value: reason }, { name: 'Date', value: date.toLocaleString() })

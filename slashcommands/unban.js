@@ -1,5 +1,4 @@
-const { MessageEmbed, Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -10,7 +9,7 @@ module.exports = {
             .setDescription("L'id de l'utilisateur à débannir")
             .setRequired(true)
         )
-        .setDefaultMemberPermissions(Permissions.FLAGS.BAN_MEMBERS),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers),
 
     async execute(interaction, client) {
         const { member, guild, options } = interaction
@@ -37,7 +36,7 @@ module.exports = {
             console.log(target)
 
             // Création de l'embed
-            const unbanEmbed = new MessageEmbed()
+            const unbanEmbed = new EmbedBuilder()
                 .setTitle("Un utilisateur a été débanni !")
                 .setColor('#00ff2f')
                 .setDescription(`${target} a été unban par ${member}`)

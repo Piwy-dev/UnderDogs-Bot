@@ -1,12 +1,11 @@
-const { MessageEmbed, Permissions, MessageAttachment, MessageButton } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { SlashCommandBuilder, PermissionsBitField, AttachmentBuilder } = require('discord.js')
 const Canvas = require('canvas')
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("test")
         .setDescription("Commande de test.")
-        .setDefaultMemberPermissions(Permissions.FLAGS.ADMINISTRATOR),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
@@ -46,7 +45,7 @@ module.exports = {
         )
         context.drawImage(avatar, 52, 52, 275, 275);
 
-        const attachment = new MessageAttachment(canvas.toBuffer())
+        const attachment = new AttachmentBuilder(canvas.toBuffer())
 
         interaction.editReply({
             content: `Bienvenue dans le serveur ${member}, tu es le ${guild.memberCount}ème membre !`,

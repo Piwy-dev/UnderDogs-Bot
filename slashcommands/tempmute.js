@@ -1,5 +1,4 @@
-const { MessageEmbed, Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js')
 
 const mongo = require('../mongo.js')
 
@@ -23,7 +22,7 @@ module.exports = {
             .setName("raison")
             .setDescription("La raison du tempmute")
         )
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
@@ -71,7 +70,7 @@ module.exports = {
         })
 
         // Envoie un message d'alerte aux membres du serveur
-        const muteEmbed = new MessageEmbed()
+        const muteEmbed = new EmbedBuilder()
             .setColor('#1a965c')
             .setTitle('Un membre a été unmute !')
             .setDescription(`${target} a été unmute par ${member} !`)

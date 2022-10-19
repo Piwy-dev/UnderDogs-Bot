@@ -1,5 +1,4 @@
-const { MessageEmbed, Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -14,7 +13,7 @@ module.exports = {
             .setName("raison")
             .setDescription("La raison de l'exclusion")
         )
-        .setDefaultMemberPermissions(Permissions.FLAGS.KICK_MEMBERS),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.KickMembers),
 
     async execute(interaction, client) {
         const { member, guild, options } = interaction
@@ -38,7 +37,7 @@ module.exports = {
         target.kick();
 
         // Création de l'embed
-        const banEmbed = new MessageEmbed()
+        const banEmbed = new EmbedBuilder()
             .setColor('#961a26')
             .setTitle('Membre exclus !')
             .addFields({

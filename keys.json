@@ -1,0 +1,20 @@
+{
+    "twitter_user_id": "1259042091314937856",
+    "twitter_consumer_key": "SNq7zPvZpENVNI2sdqpI6coFr",
+    "twitter_consumer_secret": "S0244S2tJEiDqiXyzkNuo0irnJgfiZ8WEL975qJvdbcQOJ4Ezz",
+    "twitter_access_token": "1259042091314937856-q10WU9LztHHMBltm99ythHBIpccDP6",
+    "twitter_access_token_secret": "Bye3aGK4l81Dbf0bfW3Iv5xbabql3EyjplPcHi7NvPLk5",
+    "TWITCH_SIGNING_secret": "smxhey1uxe31vom4zbflo29q9c9mrg",
+    "TWITCH_CLIENT_id": "oxxy190tddkw48tynz3hdy4k85hjwq",
+    "TWITCH_CLIENT_secret": "h3c2gf566io8u136fyropg1h3t7r7p",
+    "muteRoles": [
+        { "name": "test", "guild": "921685478888058920", "role": "921894147105894470" },
+        { "name": "cr", "guild": "761327328470892555", "role": "767473695165120533" }
+    ],
+    "welcomeChannels": [
+        { "name": "test", "guild": "921685478888058920", "channel": "922138291078320138" },
+        { "name": "officiel", "guild": "878776486306381825", "channel": "1004870776987598898" },
+        { "name": "cr", "guild": "761327328470892555", "channel": "761573681842618378" }
+    ]
+
+}

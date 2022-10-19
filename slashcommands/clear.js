@@ -1,5 +1,4 @@
-const { MessageEmbed, Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { SlashCommandBuilder, PermissionsBitField } = require('discord.js')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -7,41 +6,37 @@ module.exports = {
         .setDescription("Efface plusieurs messages.")
         .addNumberOption((option) => option
             .setName("nombre")
-            .setDescription("Le nombre de messages à supprimer.")
+            .setDescription("Nombre de messages à effacer.")
             .setRequired(true)
         )
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
 
     async execute(interaction, client) {
-        const { member, guild, options, channel } = interaction
+        const { member, channel } = interaction
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({
+            ephemeral: true
+        })
 
-        const claerAmount = options.getNumber("nombre");
+        const claerAmount = interaction.options.getNumber("nombre")
 
         if (claerAmount > 100) return interaction.editReply({
             content: "Impossible de suprimmer plus de 100 messages en une fois.",
-            ephmeral: true
         });
         if (claerAmount < 1) return interaction.editReply({
-            content: "Impossible de supprimer moins de 1 messages.",
-            ephmeral: true
+            content: "Impossible de supprimer moins de 1 message."
         });
 
-        // Efface les messages
         await channel.messages.fetch({ limit: claerAmount }).then(messages => {
             channel.bulkDelete(messages).catch(e => {
                 if (e) return interaction.editReply({
-                    content: "Désolé, je ne peux pas supprimer des messages datant de plus que 14 jours.",
-                    ephmeral: true
+                    content: "Désolé, je ne peux pas supprimer des messages datant de plus que 14 jours."
                 });
             })
         });
 
-        // Envoie un message de confirmation
         interaction.editReply({
-            content: `${claerAmount} messages ont été supprimés.`,
-            ephmeral: true
-        });
+            content: "Les messages ont été effacés !",
+        })
     }
 }

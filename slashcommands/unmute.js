@@ -1,5 +1,4 @@
-const { MessageEmbed, Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js')
 
 const mongo = require('../mongo.js')
 
@@ -16,7 +15,7 @@ module.exports = {
             .setDescription("Le membre qui sera unmute")
             .setRequired(true)
         )
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_ROLES),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
@@ -68,7 +67,7 @@ module.exports = {
         })
 
         // Envoie un message d'alerte aux membres du serveur
-        const muteEmbed = new MessageEmbed()
+        const muteEmbed = new EmbedBuilder()
             .setColor('#1a965c')
             .setTitle('Un membre a été unmute !')
             .setDescription(`${target} a été unmute par ${member} !`)

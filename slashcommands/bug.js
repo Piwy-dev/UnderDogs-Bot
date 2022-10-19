@@ -1,5 +1,4 @@
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { PermissionsBitField, SlashCommandBuilder, EmbedBuilder } = require('discord.js')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,7 +14,7 @@ module.exports = {
         const { guild, user, options } = interaction
 
         // Création de l'embed
-        const bugEmbed = new MessageEmbed()
+        const bugEmbed = new EmbedBuilder()
             .setColor('#eb1a47')
             .setTitle('Nouveau bug')
             .addFields({
@@ -23,7 +22,7 @@ module.exports = {
                 value: options.getString("bug")
             }, {
                 name: 'Utilisateur',
-                value: `<@user.id>`
+                value: `<@${user.id}>`
             }, {
                 name: 'Serveur',
                 value: guild.name

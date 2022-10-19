@@ -1,58 +1,48 @@
-const { MessageEmbed, Permissions } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders')
+const { PermissionsBitField, SlashCommandBuilder } = require('discord.js')
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("ban")
-        .setDescription("Banni un membre du serveur.")
+        .setDescription("Ban un membre.")
         .addUserOption((option) => option
             .setName("membre")
-            .setDescription("Le membre à bannir")
+            .setDescription("Membre à bannir.")
             .setRequired(true)
         )
         .addStringOption((option) => option
             .setName("raison")
-            .setDescription("La raison du bannissement")
+            .setDescription("Raison du bannissement")
         )
-        .setDefaultMemberPermissions(Permissions.FLAGS.BAN_MEMBERS),
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers),
 
     async execute(interaction, client) {
-        const { member, guild, options } = interaction
+        const { member, channel, guild } = interaction
 
-        // Récupère le membre à bannir
-        const target = guild.members.cache.get(options.getUser("membre").id)
+        await interaction.deferReply({
+            ephemeral: true
+        })
 
-        // Vérifie que le membre puisse être banni
+        // Récupère le membre à ban
+        const user = interaction.options.getUser("membre")
+        const target = guild.members.cache.get(user.id)
+
+        // Vérifie que le bot peut ban la cible
         if (!target.bannable) {
-            interaction.reply({
-                content: "Je n'ai pas les permissions pour ban ce membre.",
-                ephemeral: true
-            })
+            interaction.editReply("Je n'ai pas les permissions pour ban ce membre.");
             return;
         }
 
-        // Récupère la raison du bannissement
-        const reason = options.getString("raison") || "Aucune raison fournie."
+        // Récupère la raison du ban
+        let reason = interaction.options.getString("raison")
+        if (!reason) reason = "non définie"
 
-        // Bannissement du membre
-        target.ban({
+        await target.ban({
             reason,
         });
 
-        // Création de l'embed
-        const banEmbed = new MessageEmbed()
-            .setColor('#961a26')
-            .setTitle('Membre banni !')
-            .addFields({
-                name: 'Membre',
-                value: `<@${target.id}>`
-            }, {
-                name: 'Raison',
-                value: reason
-            })
-
-        interaction.reply({
-            embeds: [banEmbed]
+        interaction.editReply({
+            content: `${target} à été ban! Raison: ${reason}`,
+            ephemeral: false
         })
     }
 }
