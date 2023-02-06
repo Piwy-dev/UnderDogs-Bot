@@ -10,8 +10,8 @@ module.exports = {
         const { guild, channel } = interaction
 
         const updateEmbed = new EmbedBuilder()
-            .setTitle('Nouvelle mis à jour (version 0.0.6) - Octobtre 2022')
-            .setDescription('Voici les nouveautés de cette mise à jour :')
+            .setTitle('Nouvelle mise à jour (version 0.0.6) - Octobtre 2022')
+            .setDescription("Cette version est la version de pré-lancement. La prochaine version devrait apporter la mise en place de l'hébergement et de la connection à la base de donnée pour tous les serveurs.")
             .setThumbnail('https://pbs.twimg.com/profile_images/1480638649008066569/ZYdgTYU-_400x400.jpg')
             .setColor('#7dffa0')
             .addFields({

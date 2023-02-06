@@ -1,4 +1,6 @@
-const { Client, GatewayIntentBits, Collection, PermissionsBitField } = require('discord.js')
+const d = require('discord.js')
+
+const { Collection } = require('discord.js')
 
 const { REST } = require("@discordjs/rest")
 const { Routes } = require("discord-api-types/v10")
@@ -6,23 +8,20 @@ const { Routes } = require("discord-api-types/v10")
 const fs = require('fs')
 require('dotenv').config()
 
-const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.Guilds
-    ]
+const client = new d.Client({
+    intents: [ d.GatewayIntentBits.Guilds, d.GatewayIntentBits.GuildMessages, d.GatewayIntentBits.Guilds, d.GatewayIntentBits.GuildMembers ]
 });
 
 const mongo = require('./mongo')
 
 // Liste des features
-const rules = require('./features/rules')
-const ticket = require('./features/ticket')
-const recrutement = require('./features/recrutement')
-const createVoiceChannel = require('./features/createVoiceChannel')
-const logs = require('./features/logs')
-const welcome = require('./features/welcome')
-const censor = require('./features/censor')
-const antiSpam = require('./features/anti-spam')
+const buttonsManager = require('./events/buttonsManager')
+//const ticket = require('./events/ticket')
+const createVoiceChannel = require('./events/createVoiceChannel')
+const logs = require('./events/logs')
+const welcome = require('./events/welcome')
+const censor = require('./events/censor')
+const antiSpam = require('./events/anti-spam')
 
 // Laisse le bot en ligne
 var http = require('http');
@@ -71,21 +70,14 @@ client.on('ready', async() => {
     })
 
     // Execute les features
-    rules(client)
-    ticket(client)
-    recrutement(client)
-        // createVoiceChannel(client)
+    buttonsManager(client)
+    //ticket(client)
+    // createVoiceChannel(client)
     logs(client)
     welcome(client)
         //censor(client)
         //antiSpam(client)
-
-    // Censure des invitations
-    /*client.guilds.cache
-        .filter((g) => g.me.permissions.has(PermissionsBitField.Flags.ManageGuild))
-        .forEach((g) => g.invites.fetch({ cache: true })); */
-
-    client.user.setActivity(`la version 0.0.4`, { type: "WATCHING" })
+    client.user.setActivity(`la version 0.0.6`, { type: "WATCHING" })
 })
 
 // Lance les commandes slash

@@ -6,8 +6,12 @@ const reqString = {
 }
 
 const recrutementSchema = mongoose.Schema({
-    _id: reqString,
-    memberId: reqString
+    creatorId: reqString,
+    channelId: reqString,
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
 })
 
 module.exports = mongoose.model('recrutements', recrutementSchema)

@@ -4,7 +4,7 @@ const mongo = require('../mongo.js')
 
 const muteSchema = require('../models/mute-schema.js')
 
-const keys = require('../keys.json')
+//const keys = require('../keys.json')
 
 module.exports = {
     data: new SlashCommandBuilder()
