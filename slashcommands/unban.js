@@ -1,57 +1,61 @@
-const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js')
+const d = require('discord.js');
+
+const config = require('../config.json');
 
 module.exports = {
-    data: new SlashCommandBuilder()
+    data: new d.SlashCommandBuilder()
         .setName("unban")
-        .setDescription("Déanni un utilisateur.")
+        .setDescription("Débanni un membre")
         .addStringOption((option) => option
-            .setName("id")
-            .setDescription("L'id de l'utilisateur à débannir")
+            .setName("userid")
+            .setDescription("L'id du membre à débannir")
             .setRequired(true)
         )
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers),
+        .setDefaultMemberPermissions(d.PermissionFlagsBits.BanMembers),
 
-    async execute(interaction, client) {
-        const { member, guild, options } = interaction
+    async execute(interaction) {
+        const { options, guild } = interaction;
 
-        await interaction.deferReply();
+        const userId = options.getString("userid");
 
-        // Vérifie que l'identifiant sois un nombre valide
-        const id = parseInt(interaction.options.getString("id"))
-        console.log(id)
-
-        if (isNaN(id)) return interaction.editReply({
-            content: "Merci d'entrer un identifiant valide",
-            ephemeral: true
-        });
-        if (id.toString().length !== 18) return message.reply({
-            content: "Merci d'entrer un identifiant valide",
+        // Check if the user is banned
+        const bannedUsers = await guild.bans.fetch();
+        if (bannedUsers.size === 0) return interaction.reply({
+            content: "Il n'y a aucun membre banni dans ce serveur.",
             ephemeral: true
         });
 
-        try {
-            // Trouve l'utilisateur a débanir
-            const banList = await guild.bans.fetch();
-            const target = banList.get(id);
-            console.log(target)
+        // Get the member to unban
+        const user = bannedUsers.find((u) => u.user.id === userId);
+        if (!user) return interaction.reply({
+            content: "Ce membre n'est pas banni.",
+            ephemeral: true
+        });
 
-            // Création de l'embed
-            const unbanEmbed = new EmbedBuilder()
-                .setTitle("Un utilisateur a été débanni !")
-                .setColor('#00ff2f')
-                .setDescription(`${target} a été unban par ${member}`)
+        // Unban the member
+        await interaction.guild.members.unban(user.user, "Débanni par " + interaction.user.tag);
+        
+        // Find the channel where the ban logs are sent
+        const logChannel = guild.channels.cache.get(config.logsChannels[guild.id]);
+        if(!logChannel) return interaction.reply({
+            content: "Je n'ai pas trouvé le salon des logs.",
+            ephemeral: true
+        });
 
-            if (target.user.id) {
-                guild.members.unban(target.user.id)
-                interaction.editReply({
-                    embeds: [unbanEmbed]
-                });
-            } else return interaction.editReply({
-                content: "Cet utilisateur n'est pas banni.",
-                ephemeral: true
-            });
-        } catch (err) {
-            console.error(err);
-        }
+        // Send the unban logs
+        const unbanEmbed = new d.EmbedBuilder()
+            .setTitle('Utilisateur débanni')
+            .setColor('#42f584')
+            .addFields(
+                { name: 'Utilisateur', value: `${userId}` },
+            )
+            .setFooter({ text: `Débanni par ${interaction.user.tag}` })
+
+        await logChannel.send({
+            embeds: [unbanEmbed],
+        });
+
+        // Send the confirmation message
+        await interaction.reply({ content: `${userId} a été débanni !`, ephemeral: true })
     }
 }

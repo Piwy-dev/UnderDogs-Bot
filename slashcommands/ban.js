@@ -1,48 +1,62 @@
-const { PermissionsBitField, SlashCommandBuilder } = require('discord.js')
+const d = require('discord.js');
+
+const config = require('../config.json');
 
 module.exports = {
-    data: new SlashCommandBuilder()
+    data: new d.SlashCommandBuilder()
         .setName("ban")
-        .setDescription("Ban un membre.")
+        .setDescription("Banni un membre")
         .addUserOption((option) => option
             .setName("membre")
-            .setDescription("Membre à bannir.")
+            .setDescription("Le membre à bannir")
             .setRequired(true)
         )
         .addStringOption((option) => option
             .setName("raison")
-            .setDescription("Raison du bannissement")
+            .setDescription("La raison du bannissement")
+            .setRequired(true)
         )
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers),
+        .setDefaultMemberPermissions(d.PermissionFlagsBits.BanMembers),
 
-    async execute(interaction, client) {
-        const { member, channel, guild } = interaction
+    async execute(interaction) {
+        const { options, guild } = interaction
 
-        await interaction.deferReply({
+        const reason = options.getString("raison")
+
+        // Get the member to ban
+        const member = await guild.members.fetch(options.getUser("membre").id)
+
+        // Check if the member is admin or moderator
+        if (member.permissions.has(d.PermissionFlagsBits.Administrator) || member.permissions.has(d.PermissionFlagsBits.BanMembers)) return interaction.reply({
+            content: "You can't ban this member.",
             ephemeral: true
-        })
-
-        // Récupère le membre à ban
-        const user = interaction.options.getUser("membre")
-        const target = guild.members.cache.get(user.id)
-
-        // Vérifie que le bot peut ban la cible
-        if (!target.bannable) {
-            interaction.editReply("Je n'ai pas les permissions pour ban ce membre.");
-            return;
-        }
-
-        // Récupère la raison du ban
-        let reason = interaction.options.getString("raison")
-        if (!reason) reason = "non définie"
-
-        await target.ban({
+        });
+        
+        // Ban the member
+        await member.ban({
             reason,
         });
 
-        interaction.editReply({
-            content: `${target} à été ban! Raison: ${reason}`,
-            ephemeral: false
-        })
+        // Find the channel where the ban logs are sent
+        const logChannel = guild.channels.cache.get(config.logsChannels[guild.id]);
+        if(!logChannel) return interaction.reply({
+            content: "Je n'ai pas trouvé le salon des logs.",
+            ephemeral: true
+        });
+
+        // Send the ban logs
+        const banEmbed = new d.EmbedBuilder()
+            .setTitle('Membre banni')
+            .setColor('#f54e42')
+            .addFields(
+                { name: 'Membre', value: `${member}` },
+                { name: 'Raison', value: `${reason}` },
+            )
+            .setFooter({ text: `Banni par ${interaction.user.tag}` })
+        
+        await logChannel.send({ embeds: [banEmbed] });
+       
+        // Send the confirmation message
+        await interaction.reply({ content: `${member} a été banni !`, ephemeral: true })
     }
 }

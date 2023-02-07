@@ -1,13 +1,12 @@
-const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js')
+const d = require('discord.js');
 
 const mongo = require('../mongo.js')
-
 const muteSchema = require('../models/mute-schema.js')
 
-//const keys = require('../keys.json')
+const config = require('../config.json')
 
 module.exports = {
-    data: new SlashCommandBuilder()
+    data: new d.SlashCommandBuilder()
         .setName("mute")
         .setDescription("Empêche un membre de parler.")
         .addUserOption((option) => option
@@ -19,7 +18,7 @@ module.exports = {
             .setName("raison")
             .setDescription("La raison du mute")
         )
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles),
+        .setDefaultMemberPermissions(d.PermissionFlagsBits.ManageRoles),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
@@ -27,7 +26,7 @@ module.exports = {
         await interaction.deferReply({ ephemeral: true }, )
 
         // Vérifie que le membre aie la permission
-        if (!member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return interaction.editReply({
+        if (!member.permissions.has(d.PermissionFlagsBits.ManageMessages)) return interaction.editReply({
             content: 'Pour effectuer cette action, tu dois avoir la permission de gérer les messages.',
             ephemeral: true
         })
@@ -46,11 +45,7 @@ module.exports = {
             return;
         }
 
-        // Récupère le rôle de mute
-        const result = keys.muteRoles.find(r => r.guild === guild.id)
-        if (!result) return interaction.editReply("Le serveur n'a pas de rôle mute.")
-
-        const muteRole = guild.roles.cache.get(result.role)
+        const muteRole = guild.roles.cache.get(config.muteRoles[guild.id])
         if (!muteRole) return interaction.editReply("Je n'ai pas pu trouvé le role mute!")
 
         if (target.roles.cache.has(muteRole.id)) return interaction.editReply("Ce membre est déjà mute.")
@@ -83,13 +78,21 @@ module.exports = {
         })
 
         // Envoie un message d'alerte aux membres du serveur
-        const muteEmbed = new EmbedBuilder()
+        const muteEmbed = new d.EmbedBuilder()
             .setColor('#575757')
             .setTitle('Un membre a été mute !')
             .setDescription(`${target} a été mute par ${member} !`)
             .addFields({ name: 'Raison', value: options.getString("raison") || "Non spécifiée" }, )
 
-        channel.send({
+        
+        // Find the channel where the ban logs are sent
+        const logChannel = guild.channels.cache.get(config.logsChannels[guild.id]);
+        if(!logChannel) return interaction.reply({
+            content: "Je n'ai pas trouvé le salon des logs.",
+            ephemeral: true
+        });
+
+        logChannel.send({
             embeds: [muteEmbed]
         })
     }

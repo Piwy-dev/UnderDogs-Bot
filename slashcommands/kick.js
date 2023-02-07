@@ -1,55 +1,62 @@
-const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js')
+const d = require('discord.js');
+
+const config = require('../config.json');
 
 module.exports = {
-    data: new SlashCommandBuilder()
+    data: new d.SlashCommandBuilder()
         .setName("kick")
-        .setDescription("Exclu un membre du serveur.")
+        .setDescription("Expulse un membre du serveur")
         .addUserOption((option) => option
             .setName("membre")
-            .setDescription("Le membre à exclure")
+            .setDescription("Le membre à expulser")
             .setRequired(true)
         )
         .addStringOption((option) => option
             .setName("raison")
-            .setDescription("La raison de l'exclusion")
+            .setDescription("La raison de l'expulsion")
+            .setRequired(true)
         )
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.KickMembers),
+        .setDefaultMemberPermissions(d.PermissionFlagsBits.BanMembers),
 
-    async execute(interaction, client) {
-        const { member, guild, options } = interaction
+    async execute(interaction) {
+        const { options, guild } = interaction
 
-        // Récupère le membre à exclure
-        const target = guild.members.cache.get(options.getUser("membre").id)
+        const reason = options.getString("raison")
 
-        // Vérifie que le membre puisse être exclus
-        if (!target.bannable) {
-            interaction.reply({
-                content: "Je n'ai pas les permissions pour exclure ce membre.",
-                ephemeral: true
-            })
-            return;
-        }
+        // Get the member to kick
+        const member = await guild.members.fetch(options.getUser("membre").id)
 
-        // Récupère la raison du l'exclusion
-        const reason = options.getString("raison") || "Aucune raison fournie."
+        // Check if the member is admin or moderator
+        if (member.permissions.has(d.PermissionFlagsBits.Administrator) || member.permissions.has(d.PermissionFlagsBits.KickMembers)) return interaction.reply({
+            content: "Tu ne peux pas expulser ce membre.",
+            ephemeral: true
+        });
+        
+        // Kick the member
+        await member.kick({
+            reason,
+        });
 
-        // Exclusion du membre
-        target.kick();
+        // Find the channel where the kick logs are sent
+        const logChannel = guild.channels.cache.get(config.logsChannels[guild.id]);
+        if(!logChannel) return interaction.reply({
+            content: "Je n'ai pas trouvé le salon des logs.",
+            ephemeral: true
+        });
 
-        // Création de l'embed
-        const banEmbed = new EmbedBuilder()
-            .setColor('#961a26')
-            .setTitle('Membre exclus !')
-            .addFields({
-                name: 'Membre',
-                value: `<@${target.id}>`
-            }, {
-                name: 'Raison',
-                value: reason
-            })
-
-        interaction.reply({
-            embeds: [banEmbed]
-        })
+        // Send the kick logs
+        const banEmbed = new d.EmbedBuilder()
+            .setTitle('Membre expulsé')
+            .setColor('#f54e42')
+            .addFields(
+                { name: 'Membre', value: `${member}` },
+                { name: 'Raison', value: `${reason}` },
+            )
+            .setFooter({ text: `Expulsé par ${interaction.user.tag}` })
+        
+        await logChannel.send({ embeds: [banEmbed] });
+       
+        // Send the confirmation message
+        await interaction.reply({ content: `${member} a été expulsé !`, ephemeral: true })
     }
 }

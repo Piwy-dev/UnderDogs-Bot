@@ -72,7 +72,7 @@ module.exports = (client) => {
                         deny: [d.PermissionFlagsBits.ViewChannel],
                     }, {
                         id: member.user.id,
-                        allow: [d.PermissionFlagsBits.ViewChannel],
+                        allow: [d.PermissionFlagsBits.ViewChannel, d.PermissionFlagsBits.SendMessages, d.PermissionFlagsBits.EmbedLinks, d.PermissionFlagsBits.AttachFiles, d.PermissionFlagsBits.AddReactions, d.PermissionFlagsBits.UseExternalEmojis, d.PermissionFlagsBits.ReadMessageHistory, d.PermissionFlagsBits.UseExternalStickers, d.PermissionFlagsBits.UseApplicationCommands],
                     }, {
                         id: "882646756742037515",
                         allow: [d.PermissionFlagsBits.ViewChannel],
@@ -167,7 +167,7 @@ module.exports = (client) => {
                         embeds: [closeRecruitEmbed]
                     });
 
-                    const recrutementsLogsChannel = guild.channels.cache.find(c => c.id === "922053058442178620")
+                    const recrutementsLogsChannel = guild.channels.cache.find(c => c.id === config.recrutmentLogs[guild.id])
                     recrutementsLogsChannel.send({
                         embeds: [closeRecruitEmbed]
                     })

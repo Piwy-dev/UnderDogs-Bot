@@ -7,8 +7,6 @@ module.exports = {
         .setDefaultMemberPermissions(d.PermissionsBitField.Flags.Administrator),
 
     async execute(interaction, client) {
-        const { channel } = interaction
-
         await interaction.deferReply({ ephemeral: true, })
 
         const infoEmbed = new d.EmbedBuilder()
@@ -22,7 +20,7 @@ module.exports = {
             }, {
                 name: "Plateforme d'hébergement", value: "Daki Bot Hosting", inline: true
             }, {
-                name: "Version", value: "0.0.7", inline: true
+                name: "Version", value: "0.0.8", inline: true
             }, {
                 name: "Date de la dernière mise à jour", value: "06/02/2023"
             })
@@ -33,9 +31,9 @@ module.exports = {
             .setColor('#5abf67')
             .setTitle('Fonctionnalités mises en place')
             .addFields({
-                name: "Modération", value: "Clear  |  Kick  |  Ban"
+                name: "Modération", value: "Clear  |  Kick  |  Ban | Unban"
             }, {
-                name: "Serveur Coc", value: "Règlement  |  Autorôles"
+                name: "Serveur Coc", value: "Règlement  |  Autorôles | Recrutement"
             })
 
         const nextFeaturesEmbed = new d.EmbedBuilder()
@@ -44,10 +42,12 @@ module.exports = {
             .addFields({
                 name: "Modération", value: "Mute  |  Unmute  |  Warn  |  Unwarn"
             }, {
-                name: "Serveur Coc", value: "Recrutement  |  Tickets  |  Système de niveaux"
+                name: "Serveur Coc", value: "Tickets  |  Système de niveaux"
             })
 
-        channel.send({
+
+        const message = await client.guilds.cache.get("874958380844859435").channels.cache.get("1072193591998435339").messages.fetch("1072207647798984764")
+        message.edit({
             embeds: [infoEmbed, featuresEmbed, nextFeaturesEmbed],
         });
 

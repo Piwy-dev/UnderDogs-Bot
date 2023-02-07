@@ -1,11 +1,13 @@
-const { EmbedBuilder, SlashCommandBuilder, PermissionsBitField } = require('discord.js')
+const d = require('discord.js');
 
 const mongo = require('../mongo.js')
 
 const muteSchema = require('../models/mute-schema.js')
 
+const config = require('../config.json')
+
 module.exports = {
-    data: new SlashCommandBuilder()
+    data: new d.SlashCommandBuilder()
         .setName("tempmute")
         .setDescription("Empêche un membre de parler pendant un certain temps.")
         .addUserOption((option) => option
@@ -22,7 +24,7 @@ module.exports = {
             .setName("raison")
             .setDescription("La raison du tempmute")
         )
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageRoles),
+        .setDefaultMemberPermissions(d.PermissionFlagsBits.ManageRoles),
 
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
@@ -38,7 +40,7 @@ module.exports = {
         }
 
         // Récupère le rôle de mute
-        const muteRole = guild.roles.cache.get('921894147105894470')
+        const muteRole = guild.roles.cache.get(config.muteRoles[guild.id])
         if (!muteRole) return interaction.editReply("Je n'ai pas pu trouvé le role mute!")
 
         if (!target.roles.cache.has(muteRole.id)) return interaction.editReply("Ce membre n'est pas mute.")
@@ -70,7 +72,7 @@ module.exports = {
         })
 
         // Envoie un message d'alerte aux membres du serveur
-        const muteEmbed = new EmbedBuilder()
+        const muteEmbed = new d.EmbedBuilder()
             .setColor('#1a965c')
             .setTitle('Un membre a été unmute !')
             .setDescription(`${target} a été unmute par ${member} !`)

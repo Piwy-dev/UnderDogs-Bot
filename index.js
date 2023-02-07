@@ -1,7 +1,5 @@
 const d = require('discord.js')
 
-const { Collection } = require('discord.js')
-
 const { REST } = require("@discordjs/rest")
 const { Routes } = require("discord-api-types/v10")
 
@@ -18,7 +16,7 @@ const mongo = require('./mongo')
 const buttonsManager = require('./events/buttonsManager')
 //const ticket = require('./events/ticket')
 const createVoiceChannel = require('./events/createVoiceChannel')
-const logs = require('./events/logs')
+//const logs = require('./events/logs')
 const welcome = require('./events/welcome')
 const censor = require('./events/censor')
 const antiSpam = require('./events/anti-spam')
@@ -33,7 +31,7 @@ http.createServer(function(req, res) {
 // Fichier pour les commandes
 const commandFiles = fs.readdirSync('./slashcommands').filter(file => file.endsWith('.js'));
 const commands = [];
-client.commands = new Collection();
+client.commands = new d.Collection();
 for (const file of commandFiles) {
     const command = require(`./slashcommands/${file}`)
     commands.push(command.data.toJSON())
@@ -73,7 +71,7 @@ client.on('ready', async() => {
     buttonsManager(client)
     //ticket(client)
     // createVoiceChannel(client)
-    logs(client)
+    //logs(client)
     welcome(client)
         //censor(client)
         //antiSpam(client)
