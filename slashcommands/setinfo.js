@@ -20,9 +20,9 @@ module.exports = {
             }, {
                 name: "Plateforme d'hébergement", value: "Daki Bot Hosting", inline: true
             }, {
-                name: "Version", value: "0.0.8", inline: true
+                name: "Version", value: "0.0.9", inline: true
             }, {
-                name: "Date de la dernière mise à jour", value: "06/02/2023"
+                name: "Date de la dernière mise à jour", value: `${new Date().toLocaleDateString()}`
             })
             .setThumbnail(client.user.avatarURL())
             .setFooter({ text: "Bot développé par Piwy#2703", iconURL: "https://pbs.twimg.com/profile_images/1480638649008066569/ZYdgTYU-_400x400.jpg" })
@@ -31,18 +31,18 @@ module.exports = {
             .setColor('#5abf67')
             .setTitle('Fonctionnalités mises en place')
             .addFields({
-                name: "Modération", value: "Clear  |  Kick  |  Ban | Unban"
+                name: "Modération", value: "Clear  |  Kick  |  Ban | Unban | Warn | Removewarn | Warnings | Clearwarns | Mute | Tempmute | Unmute"
             }, {
-                name: "Serveur Coc", value: "Règlement  |  Autorôles | Recrutement"
+                name: "Serveur Coc", value: "Règlement  |  Autorôles | Recrutement | Message de bienvenue | Contact du staff | Système de niveaux"
             })
 
         const nextFeaturesEmbed = new d.EmbedBuilder()
             .setColor('#4a94e8')
             .setTitle('Fonctionnalités à venir')
             .addFields({
-                name: "Modération", value: "Mute  |  Unmute  |  Warn  |  Unwarn"
+                name: "Général", value: "Commande d'information"
             }, {
-                name: "Serveur Coc", value: "Tickets  |  Système de niveaux"
+                name: "Serveur E-sport", value: "Règlement  |  Autorôles | Recrutement | Message de bienvenue | Contact du staff | Système de niveaux"
             })
 
 

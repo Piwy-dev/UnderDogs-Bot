@@ -26,7 +26,7 @@ module.exports = (client) => {
         // Importe la pp
         const avatar = await Canvas.loadImage(
             member.user.displayAvatarURL({
-                format: 'png',
+                extension: 'jpg',
             })
         )
         context.drawImage(avatar, 202, 150, 427.5, 427.5);
@@ -55,11 +55,7 @@ module.exports = (client) => {
                 const user = data.Users.findIndex((prop) => prop === member.id)
                 if (user == -1) return
 
-                // Récupère le rôle de mute
-                const result = config.muteRoles.find(r => r.guild === guild.id)
-                if (!result) return interaction.editReply("Le serveur n'a pas de rôle mute.")
-
-                const muteRole = guild.roles.cache.get(result.role)
+                const muteRole = guild.roles.cache.get(config.muteRoles[guild.id])
                 if (!muteRole) return interaction.editReply("Je n'ai pas pu trouvé le role mute!")
 
                 member.roles.add(muteRole)

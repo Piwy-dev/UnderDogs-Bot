@@ -14,7 +14,7 @@ const mongo = require('./mongo')
 
 // Liste des features
 const buttonsManager = require('./events/buttonsManager')
-//const ticket = require('./events/ticket')
+const levels = require('./events/levels')
 const createVoiceChannel = require('./events/createVoiceChannel')
 //const logs = require('./events/logs')
 const welcome = require('./events/welcome')
@@ -69,8 +69,8 @@ client.on('ready', async() => {
 
     // Execute les features
     buttonsManager(client)
-    //ticket(client)
-    // createVoiceChannel(client)
+    levels(client)
+    //createVoiceChannel(client)
     //logs(client)
     welcome(client)
         //censor(client)
