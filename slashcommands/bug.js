@@ -1,7 +1,7 @@
-const { PermissionsBitField, SlashCommandBuilder, EmbedBuilder } = require('discord.js')
+const d = require('discord.js')
 
 module.exports = {
-    data: new SlashCommandBuilder()
+    data: new d.SlashCommandBuilder()
         .setName("bug")
         .setDescription("repport a bug to the bot's creator")
         .addStringOption((option) => option
@@ -14,7 +14,7 @@ module.exports = {
         const { guild, user, options } = interaction
 
         // Création de l'embed
-        const bugEmbed = new EmbedBuilder()
+        const bugEmbed = new d.EmbedBuilder()
             .setColor('#eb1a47')
             .setTitle('Nouveau bug')
             .addFields({

@@ -8,7 +8,7 @@ const muteSchema = require('../models/mute-schema')
 const mongo = require('../mongo');
 
 module.exports = (client) => {
-    client.on('guildMemberAdd', async(member) => {
+    client.on(d.Events.GuildMemberAdd, async(member) => {
         const { guild } = member
 
         const canvas = Canvas.createCanvas(1280, 720);

@@ -1,13 +1,12 @@
 const d = require('discord.js')
 
-const { REST } = require("@discordjs/rest")
-const { Routes } = require("discord-api-types/v10")
+const fs = require('node:fs');
+const path = require('node:path');
 
-const fs = require('fs')
 require('dotenv').config()
 
 const client = new d.Client({
-    intents: [ d.GatewayIntentBits.Guilds, d.GatewayIntentBits.GuildMessages, d.GatewayIntentBits.Guilds, d.GatewayIntentBits.GuildMembers ]
+    intents: [ d.GatewayIntentBits.Guilds, d.GatewayIntentBits.GuildMessages, d.GatewayIntentBits.GuildMembers ]
 });
 
 const mongo = require('./mongo')
@@ -15,11 +14,8 @@ const mongo = require('./mongo')
 // Liste des features
 const buttonsManager = require('./events/buttonsManager')
 const levels = require('./events/levels')
-const createVoiceChannel = require('./events/createVoiceChannel')
-//const logs = require('./events/logs')
 const welcome = require('./events/welcome')
-const censor = require('./events/censor')
-const antiSpam = require('./events/anti-spam')
+const sellect = require('./events/sellect')
 
 // Laisse le bot en ligne
 var http = require('http');
@@ -28,35 +24,31 @@ http.createServer(function(req, res) {
     res.end();
 }).listen(8080);
 
-// Fichier pour les commandes
-const commandFiles = fs.readdirSync('./slashcommands').filter(file => file.endsWith('.js'));
 const commands = [];
-client.commands = new d.Collection();
+const commandsPath = path.join(__dirname, 'slashcommands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
-    const command = require(`./slashcommands/${file}`)
-    commands.push(command.data.toJSON())
-    client.commands.set(command.data.name, command)
+	const command = require(`./slashcommands/${file}`);
+	commands.push(command.data.toJSON());
 }
 
-client.on('ready', async() => {
+const rest = new d.REST({ version: '10' }).setToken(process.env.TOKEN);
+
+(async () => {
+	try {
+		const data = await rest.put(
+			d.Routes.applicationCommands(process.env.CLIENT_ID),
+			{ body: commands },
+		);
+		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+	} catch (error) {
+		console.error(error);
+	}
+})();
+
+
+client.on(d.Events.ClientReady, async() => {
     console.log(`Currently in ${client.guilds.cache.size} servers`)
-
-    // Charge les commandes slash
-    const clientID = client.user.id;
-    const rest = new REST({
-        version: '9'
-    }).setToken(process.env.TOKEN);
-
-    (async() => {
-        try {
-            await rest.put(Routes.applicationCommands(clientID), {
-                body: commands
-            })
-            console.log("Les commandes ont été chargées généralement correctement.")
-        } catch (err) {
-            if (err) console.error(err)
-        }
-    })()
 
     // Connecte à la base de données
     await mongo().then(mongoose => {
@@ -70,17 +62,14 @@ client.on('ready', async() => {
     // Execute les features
     buttonsManager(client)
     levels(client)
-    //createVoiceChannel(client)
-    //logs(client)
     welcome(client)
-        //censor(client)
-        //antiSpam(client)
-    client.user.setActivity(`la version 0.0.6`, { type: "WATCHING" })
+    sellect(client)
+
+    client.user.setActivity(`la version 0.1.0`, { type: "WATCHING" })
 })
 
-// Lance les commandes slash
-client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return
+client.on(d.Events.InteractionCreate, async interaction => {
+    if (!interaction.isChatInputCommand()) return
 
     const command = client.commands.get(interaction.commandName)
 

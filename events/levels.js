@@ -12,7 +12,7 @@ const levelUp = {0: 1, 1: 10, 2: 11, 3: 21, 4: 32, 5: 53, 6: 85, 7: 138, 8: 223,
 let isRunning = false
 
 module.exports = (client) => {
-    client.on('messageCreate', async(message) => {
+    client.on(d.Events.MessageDelete, async(message) => {
         const { guild, author, channel } = message
 
         if (message.author.bot) return;

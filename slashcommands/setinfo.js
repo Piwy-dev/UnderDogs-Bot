@@ -20,7 +20,7 @@ module.exports = {
             }, {
                 name: "Plateforme d'hébergement", value: "Daki Bot Hosting", inline: true
             }, {
-                name: "Version", value: "0.0.9", inline: true
+                name: "Version", value: "0.1.0", inline: true
             }, {
                 name: "Date de la dernière mise à jour", value: `${new Date().toLocaleDateString()}`
             })

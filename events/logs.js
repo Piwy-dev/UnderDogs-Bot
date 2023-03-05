@@ -1,8 +1,9 @@
 const { MessageEmbed, Permissions } = require('discord.js');
+const d = require('discord.js');
 
 module.exports = (client) => {
     //#region quand un utilisateur quitte ou est expulisé
-    client.on('guildMemberRemove', async member => {
+    client.on(d.Events.GuildMemberRemove, async member => {
         const { guild } = member
 
         // Trouve le channel des logs
@@ -48,6 +49,4 @@ module.exports = (client) => {
         }
     });
     //#endregion
-
-    
 }
