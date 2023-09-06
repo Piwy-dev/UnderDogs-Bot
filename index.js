@@ -65,7 +65,7 @@ client.on(d.Events.ClientReady, async() => {
     welcome(client)
     sellect(client)
 
-    client.user.setActivity(`la version 0.1.0`, { type: "WATCHING" })
+    //client.user.setActivity(`la version 0.0.1`, { type: "WATCHING" })
 })
 
 client.on(d.Events.InteractionCreate, async interaction => {
