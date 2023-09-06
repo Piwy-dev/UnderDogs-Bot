@@ -1,9 +1,9 @@
 const d = require('discord.js')
 
-const mongo = require('../mongo.js')
-const warnSchema = require('../models/warn-schema')
+const mongo = require('../../db/mongo.js')
+const warnSchema = require('../../db/warn-schema')
 
-const config = require('../config.json')
+const config = require('../../config.json')
 
 let result;
 
@@ -35,7 +35,7 @@ module.exports = {
         const date = new Date(interaction.createdTimestamp)
 
         // Check if the target is admin or moderator
-        if (target.permissions.has(d.PermissionsBitField.Flags.ManageChannels || d.PermissionsBitField.Flags.Administrator))
+        if (target.permissions.has(d.PermissionFlagsBits.ManageChannels || d.PermissionFlagsBits.Administrator))
             return interaction.editReply({ content: "Tu ne peux pas avertir ce membre !" });
 
         // Create the warning

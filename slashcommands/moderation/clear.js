@@ -1,7 +1,8 @@
-const { SlashCommandBuilder, PermissionsBitField } = require('discord.js')
+const d = require('discord.js')
+
 
 module.exports = {
-    data: new SlashCommandBuilder()
+    data: new d.SlashCommandBuilder()
         .setName("clear")
         .setDescription("Efface plusieurs messages.")
         .addNumberOption((option) => option
@@ -9,10 +10,10 @@ module.exports = {
             .setDescription("Nombre de messages à effacer.")
             .setRequired(true)
         )
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
+        .setDefaultMemberPermissions(d.PermissionFlagsBits.ManageMessages),
 
-    async execute(interaction, client) {
-        const { member, channel } = interaction
+    async execute(interaction) {
+        const { channel } = interaction
 
         await interaction.deferReply({
             ephemeral: true

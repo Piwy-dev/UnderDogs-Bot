@@ -1,9 +1,9 @@
 const d = require('discord.js');
 
-const mongo = require('../mongo.js')
-const warnSchema = require('../models/warn-schema')
+const mongo = require('../../db/mongo.js')
+const warnSchema = require('../../db/warn-schema')
 
-const config = require('../config.json')
+const config = require('../../config.json')
 
 let result;
 

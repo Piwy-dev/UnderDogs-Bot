@@ -17,29 +17,41 @@ const levels = require('./events/levels')
 const welcome = require('./events/welcome')
 const sellect = require('./events/sellect')
 
-// Laisse le bot en ligne
-var http = require('http');
-http.createServer(function(req, res) {
-    res.write("I'm alive");
-    res.end();
-}).listen(8080);
 
 const commands = [];
-const commandsPath = path.join(__dirname, 'slashcommands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-for (const file of commandFiles) {
-	const command = require(`./slashcommands/${file}`);
-	commands.push(command.data.toJSON());
+client.commands = new d.Collection();
+const foldersPath = path.join(__dirname, 'slashcommands');
+const commandFolders = fs.readdirSync(foldersPath);
+for (const folder of commandFolders) {
+	// Grab all the command files from the commands directory you created earlier
+	const commandsPath = path.join(foldersPath, folder);
+	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+	// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
+	for (const file of commandFiles) {
+		const filePath = path.join(commandsPath, file);
+		const command = require(filePath);
+		if ('data' in command && 'execute' in command) {
+            client.commands.set(command.data.name, command)
+			commands.push(command.data.toJSON());
+		} else {
+			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+		}
+	}
 }
 
 const rest = new d.REST({ version: '10' }).setToken(process.env.TOKEN);
 
 (async () => {
 	try {
+		console.log(`Started refreshing ${commands.length} application (/) commands.`);
+
+		// The put method is used to fully refresh all commands in the guild with the current set
 		const data = await rest.put(
-			d.Routes.applicationCommands(process.env.CLIENT_ID),
+			d.Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), // TEST
+            //d.Routes.applicationCommands(process.env.CLIENT_ID), // PRODUCTION
 			{ body: commands },
 		);
+
 		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
 	} catch (error) {
 		console.error(error);
@@ -47,10 +59,8 @@ const rest = new d.REST({ version: '10' }).setToken(process.env.TOKEN);
 })();
 
 
-client.on(d.Events.ClientReady, async() => {
-    console.log(`Currently in ${client.guilds.cache.size} servers`)
 
-    // Connecte à la base de données
+client.on(d.Events.ClientReady, async() => {
     await mongo().then(mongoose => {
         try {
             console.log('Base de donnée connectée');
@@ -59,32 +69,42 @@ client.on(d.Events.ClientReady, async() => {
         }
     })
 
-    // Execute les features
     buttonsManager(client)
     levels(client)
     welcome(client)
     sellect(client)
-
-    //client.user.setActivity(`la version 0.0.1`, { type: "WATCHING" })
+    
+    console.log(`Currently in ${client.guilds.cache.size} servers`)
+    client.user.setPresence({
+        activities: [{
+            name: `${client.guilds.cache.size} servers`,
+            type: d.ActivityType.Watching
+        }],
+        status: 'online'
+    });
 })
+
 
 client.on(d.Events.InteractionCreate, async interaction => {
-    if (!interaction.isChatInputCommand()) return
+	if (!interaction.isChatInputCommand()) return;
 
-    const command = client.commands.get(interaction.commandName)
+	const command = interaction.client.commands.get(interaction.commandName);
 
-    if (!command) return
+	if (!command) {
+		console.error(`No command matching ${interaction.commandName} was found.`);
+		return;
+	}
 
-    try {
-        await command.execute(interaction, client)
-    } catch (err) {
-        if (err) console.error(err)
-
-        await interaction.reply({
-            content: "Une erreur s'est produite pendant l'exécution. Merci de réessayer ou de rapporter un bug.",
-            ephemeral: true
-        })
-    }
-})
+	try {
+		await command.execute(interaction);
+	} catch (error) {
+		console.error(error);
+		if (interaction.replied || interaction.deferred) {
+			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+		} else {
+			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+		}
+	}
+});
 
 client.login(process.env.TOKEN)

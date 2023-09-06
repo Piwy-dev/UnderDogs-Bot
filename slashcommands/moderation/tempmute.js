@@ -1,32 +1,37 @@
-const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js')
 const d = require('discord.js');
 
-const mongo = require('../mongo.js')
+const mongo = require('../../db/mongo.js')
 
-const muteSchema = require('../models/mute-schema.js')
+const muteSchema = require('../../db/mute-schema.js')
 
-const config = require('../config.json')
+const config = require('../../config.json')
 
 module.exports = {
     data: new d.SlashCommandBuilder()
-        .setName("unmute")
-        .setDescription("Permert à un membre de parler à nouveau.")
+        .setName("tempmute")
+        .setDescription("Empêche un membre de parler pendant un certain temps.")
         .addUserOption((option) => option
             .setName("membre")
             .setDescription("Le membre qui sera unmute")
             .setRequired(true)
         )
+        .addNumberOption((option) => option
+            .setName("temps")
+            .setDescription("Le temps de mute")
+            .setRequired(true)
+        )
+        .addStringOption((option) => option
+            .setName("raison")
+            .setDescription("La raison du tempmute")
+        )
         .setDefaultMemberPermissions(d.PermissionFlagsBits.ManageRoles),
-        
+
     async execute(interaction, client) {
         const { member, guild, options, channel } = interaction
 
         await interaction.deferReply({ ephemeral: true }, )
 
-        if(!member.permissions.has(d.PermissionFlagsBits.ManageMessages)) return interaction.editReply({
-            content: 'Pour effectuer cette action, tu dois avoir la permission de gérer les messages.',
-        })
-
+        // Récupère le membre à mute
         const target = guild.members.cache.get(options.getUser("membre").id)
 
         if (!target) {
@@ -34,10 +39,10 @@ module.exports = {
             return;
         }
 
+        // Récupère le rôle de mute
         const muteRole = guild.roles.cache.get(config.muteRoles[guild.id])
         if (!muteRole) return interaction.editReply("Je n'ai pas pu trouvé le role mute!")
 
-        // Vérifie si le membre est mute
         if (!target.roles.cache.has(muteRole.id)) return interaction.editReply("Ce membre n'est pas mute.")
 
         target.roles.remove(muteRole)
@@ -66,19 +71,13 @@ module.exports = {
             ephemeral: true
         })
 
-        const muteEmbed = new EmbedBuilder()
+        // Envoie un message d'alerte aux membres du serveur
+        const muteEmbed = new d.EmbedBuilder()
             .setColor('#1a965c')
             .setTitle('Un membre a été unmute !')
             .setDescription(`${target} a été unmute par ${member} !`)
 
-        // Find the channel where the ban logs are sent
-        const logChannel = guild.channels.cache.get(config.logsChannels[guild.id]);
-        if(!logChannel) return interaction.reply({
-            content: "Je n'ai pas trouvé le salon des logs.",
-            ephemeral: true
-        });
-
-        logChannel.send({
+        channel.send({
             embeds: [muteEmbed]
         })
     }

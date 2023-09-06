@@ -1,6 +1,6 @@
 const d = require('discord.js');
+const config = require('../../config.json');
 
-const config = require('../config.json');
 
 module.exports = {
     data: new d.SlashCommandBuilder()

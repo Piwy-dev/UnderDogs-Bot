@@ -1,9 +1,9 @@
 const d = require('discord.js');
 
-const mongo = require('../mongo.js')
-const muteSchema = require('../models/mute-schema.js')
+const mongo = require('../../db/mongo.js')
+const muteSchema = require('../../db/mute-schema.js')
 
-const config = require('../config.json')
+const config = require('../../config.json')
 
 module.exports = {
     data: new d.SlashCommandBuilder()

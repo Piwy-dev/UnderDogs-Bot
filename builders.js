@@ -15,7 +15,7 @@ const rulesEmbed = new d.EmbedBuilder()
         { name: "Règle 5", value: "Toute publicité est interdite." },
         { name: "Règle 6", value: "Le spam est intedit." },
         { name: "Règle 7", value: "On évite de mentionner avec insistance les membres du serveurs." },
-        { name: "Règle 8", value: "On respecte les sujets des salons, on évite de trop s'en éloigner" },
+        { name: "Règle 8", value: "On respecte les sujets des salons, on évite de trop s'en éloigner." },
     )
 
 const rulesButton = new d.ActionRowBuilder()
