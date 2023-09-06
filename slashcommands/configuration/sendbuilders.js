@@ -9,9 +9,18 @@ module.exports = {
         .setDefaultMemberPermissions(d.PermissionFlagsBits.Administrator),
     
     async execute(interaction) {
-        interaction.reply({ 
+        const { channel } = interaction
+
+        await interaction.deferReply({ ephemeral: true })
+
+        channel.send({
             embeds: [builders.rulesEmbed],
             components: [builders.rulesButton]
+        })
+
+        interaction.editReply({ 
+            content: "Message envoyé !",
+            ephemeral: true
         })
     }
 }
