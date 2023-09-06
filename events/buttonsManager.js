@@ -18,8 +18,7 @@ module.exports = (client) => {
 
         //// BOUTON REGLEMENT ////
         if (interaction.customId === "rules") {
-            // Trouve le role membre en fonction de l'id du serveur
-            const memberRole = guild.roles.cache.find(r => r.id === config.memberRoles[guild.id]);
+            const memberRole = guild.roles.cache.find(r => r.id === config.memberRoles[guild.id]["role_id"]);
             if (!memberRole) return console.log("Le rôle membre n'existe pas !")
             member.roles.add(memberRole)
             interaction.editReply({content: "Merci d'avoir accepté le règlement !"})

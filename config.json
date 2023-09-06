@@ -1,7 +1,13 @@
 {
     "memberRoles": {
-        "//Server ID": "//Member Role ID",
-        "882645604658974741": "883340078624161813"
+        "921685478888058920": {
+            "server_name": "test",
+            "role_id": "921718701282181180"
+        },
+        "878776486306381825": {
+            "server_name": "e-sport",
+            "role_id": "1102011219503759390"
+        }
     },
     "hdvRoles": {
         "//hdv name": "//HDV Role ID",
