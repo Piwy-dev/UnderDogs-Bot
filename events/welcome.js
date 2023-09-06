@@ -4,8 +4,8 @@ const d = require('discord.js')
 
 const config = require('../config.json')
 
-const muteSchema = require('../models/mute-schema')
-const mongo = require('../mongo');
+const muteSchema = require('../db/mute-schema')
+const mongo = require('../db/mongo');
 
 module.exports = (client) => {
     client.on(d.Events.GuildMemberAdd, async(member) => {

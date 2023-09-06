@@ -1,7 +1,7 @@
 const d = require('discord.js');
 
-const mongo = require('../mongo');
-const troupesSchema = require('../models/troupes-schema');
+const mongo = require('../db/mongo');
+const troupesSchema = require('../db/troupes-schema');
 
 module.exports = (client) => {
     client.on(d.Events.InteractionCreate, async interaction => {

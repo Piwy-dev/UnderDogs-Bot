@@ -9,7 +9,7 @@ const client = new d.Client({
     intents: [ d.GatewayIntentBits.Guilds, d.GatewayIntentBits.GuildMessages, d.GatewayIntentBits.GuildMembers ]
 });
 
-const mongo = require('./mongo')
+const mongo = require('./db/mongo')
 
 // Liste des features
 const buttonsManager = require('./events/buttonsManager')

@@ -4,8 +4,8 @@ const d = require('discord.js')
 
 const config = require('../config.json')
 
-const mongo = require('../mongo');
-const levelsSchema = require('../models/levelsSchema');
+const mongo = require('../db/mongo');
+const levelsSchema = require('../db/levelsSchema');
 
 const levelUp = {0: 1, 1: 10, 2: 11, 3: 21, 4: 32, 5: 53, 6: 85, 7: 138, 8: 223, 9: 361, 10: 584, 11: 945, 12: 1529, 13: 2474, 14: 4003, 15: 6477}
 

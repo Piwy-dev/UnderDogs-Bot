@@ -2,10 +2,10 @@ const d = require('discord.js');
 
 const config = require('../config.json');
 
-const mongo = require('../mongo')
-const recrutementSchema = require('../models/recrutement-schema')
-const contactSchema = require('../models/contact-schema')
-const troupesSchema = require('../models/troupes-schema');
+const mongo = require('../db/mongo')
+const recrutementSchema = require('../db/recrutement-schema')
+const contactSchema = require('../db/contact-schema')
+const troupesSchema = require('../db/troupes-schema');
 
 autoroles = [ "883336486475411467", "883336534227550299", "883336562081955881", "883336587176468481", "1071819593053642872", "1071839872773541968", "1071839970832166922", "1071840052759507074", "1071840106224308257", "1071840150973325343"]
 
