@@ -59,7 +59,6 @@ const rest = new d.REST({ version: '10' }).setToken(process.env.TOKEN);
 })();
 
 
-
 client.on(d.Events.ClientReady, async() => {
     await mongo().then(mongoose => {
         try {
@@ -77,7 +76,7 @@ client.on(d.Events.ClientReady, async() => {
     console.log(`Currently in ${client.guilds.cache.size} servers`)
     client.user.setPresence({
         activities: [{
-            name: `${client.guilds.cache.size} servers`,
+            name: `/info`,
             type: d.ActivityType.Watching
         }],
         status: 'online'
