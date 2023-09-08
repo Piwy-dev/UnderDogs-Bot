@@ -26,7 +26,31 @@ const rulesButton = new d.ActionRowBuilder()
             .setStyle(d.ButtonStyle.Success)
     )
 
+const notificationAutoRoleEmbed = new d.EmbedBuilder()
+    .setTitle("Auto-Rôles Notifications")
+    .setColor("#4c84fc")
+    .setDescription("Choisis les notifications que tu souhaites recevoir.")
+    .addFields(
+        { name: "🐦 Twitter", value: "Tu seras notifié lorsque un nouveau tweet est publié" },
+        { name: "🎥 Twitch", value: "Tu seras notifié lors du début d'un nouveau live." },
+        { name: "📱 TikTok", value: "Tu seras notifié lorsqu'une nouvelle vidéo est publiée." },
+    )
+
+const notificationAutoRoleSelectMenu = new d.ActionRowBuilder()
+    .addComponents(
+        new d.StringSelectMenuBuilder()
+            .setCustomId("notification")
+            .setPlaceholder("Sélectionne les notifications que tu souhaites recevoir.")
+            .addOptions(
+                { label: "Notifiactions Twitter", value: "twitter" },
+                { label: "Notifications Twitch", value: "twitch" },
+                { label: "Notifications TikTok", value: "tiktok" },
+            )
+    )
+
 module.exports = {
     rulesEmbed,
-    rulesButton
+    rulesButton,
+    notificationAutoRoleEmbed,
+    notificationAutoRoleSelectMenu
 }
