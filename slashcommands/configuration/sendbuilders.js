@@ -14,8 +14,8 @@ module.exports = {
         await interaction.deferReply({ ephemeral: true })
 
         channel.send({
-            embeds: [builders.notificationAutoRoleEmbed],
-            components: [builders.notificationAutoRoleSelectMenu]
+            embeds: [builders.rulesEmbed],
+            components: [builders.rulesButton]
         })
 
         interaction.editReply({ 
