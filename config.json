@@ -33,6 +33,20 @@
             "tiktok": "1150085423155130388"
         }
     },
+    "twitchChannels": {
+        "921685478888058920": {
+            "server_name": "test",
+            "channel_id": "922246791829798953"
+        },
+        "878776486306381825": {
+            "server_name": "e-sport",
+            "channel_id": "879263022454038580"
+        },
+        "1147813371236851812": {
+            "server_name": "community",
+            "channel_id": "1148269473112019104"
+        }
+    },
     "hdvRoles": {
         "//hdv name": "//HDV Role ID",
         "hdv11": "883336486475411467",

@@ -4,7 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 require('dotenv').config()
-
+const axios = require('axios');
+const config = require('./config.json');
 const client = new d.Client({
     intents: [ d.GatewayIntentBits.Guilds, d.GatewayIntentBits.GuildMessages, d.GatewayIntentBits.GuildMembers ]
 });
@@ -15,7 +16,8 @@ const mongo = require('./db/mongo')
 const buttonsManager = require('./events/buttonsManager')
 const levels = require('./events/levels')
 const welcome = require('./events/welcome')
-const sellect = require('./events/sellect')
+const sellect = require('./events/sellect');
+const { channel } = require('node:diagnostics_channel');
 
 
 const commands = [];
@@ -64,6 +66,7 @@ client.on(d.Events.ClientReady, async() => {
         try {
             console.log('Base de donnée connectée');
         } finally {
+			mongoose.set('strictQuery', false)
             mongoose.connection.close();
         }
     })
@@ -107,3 +110,52 @@ client.on(d.Events.InteractionCreate, async interaction => {
 });
 
 client.login(process.env.TOKEN)
+
+
+const twitchClientId = process.env.TWITCH_CLIENT_ID;
+const twitchOAuthToken = process.env.TWITCH_OAUTH_TOKEN;
+const twitchUsername = process.env.TWITCH_USERNAME;
+const twitchApiUrl = `https://api.twitch.tv/helix/streams?user_login=${twitchUsername}`;
+async function checkTwitchStreamStatus() {
+	try {
+	  const response = await axios.get(twitchApiUrl, {
+		headers: {
+		  'Client-ID': twitchClientId,
+		  'Authorization': `Bearer ${twitchOAuthToken}`,
+		},
+	  });
+  
+	  const streamData = response.data.data[0];
+	  
+	  if (streamData && streamData.type === 'live') {
+		for (const guild of client.guilds.cache.values()) {
+		  const twitchChannel = guild.channels.cache.get(config.twitchChannels[guild.id]["channel_id"]);
+		  if (twitchChannel) {
+			twitchChannel.send(`Un nouveau live vient de démarrer ! \nRegarde-le ici : https://www.twitch.tv/${twitchUsername}`);
+		  }
+		}
+	  }
+	} catch (error) {
+	  console.error('Error checking Twitch stream status:', error);
+	}
+  }
+  
+  // Check Twitch stream status every 5 minutes
+  //setInterval(checkTwitchStreamStatus, 1 * 60 * 1000);
+  
+
+  async function checkTokenScopes() {
+	try {
+	  const response = await axios.get('https://id.twitch.tv/oauth2/validate', {
+		headers: {
+			'Authorization': `OAuth ${twitchOAuthToken}`,
+		},
+	  });
+  
+	  console.log('Token Scopes:', response.data.scopes);
+	} catch (error) {
+	  console.error('Error checking token scopes:', error);
+	}
+  }
+  
+  checkTokenScopes();
